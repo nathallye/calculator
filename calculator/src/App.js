@@ -1,11 +1,20 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 
-import Button from './components/Button';
+import Button from "./components/Button";
+import Display from "./components/Display";
 
 const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+  
+
   return (
     <View style={styles.container}>
+      <Display value={state.displayValue} />
+
       <View style={styles.buttons}>
         <Button label="AC" />
         <Button label="/" />
@@ -26,7 +35,6 @@ const App = () => {
         <Button label="=" />
       </View>
     </View>
-    
   );
 };
 

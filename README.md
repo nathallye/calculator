@@ -58,8 +58,8 @@ export default App;
 - E para deixar tudo pronto para implementação de código JSX e dos componentes do react native, vamos importá-los:
 
 ``` JS
-import React from 'react';
-import {} from 'react-native';
+import React from "react";
+import { } from "react-native";
 
 const App = () => { // podemos criar diretamente uma função chamada App também
   return null;
@@ -71,8 +71,8 @@ export default App;
 - Para visualizarmos algo em tela, vamos importar o componente _Text_ do react native e referenciá-lo, inserindo nele o nome Calculator:
 
 ``` JSX
-import React from 'react';
-import { Text } from 'react-native';
+import React from "react";
+import { Text } from "react-native";
 
 const App = () => { 
   return (
@@ -92,7 +92,7 @@ export default App;
 import React from "react";
 import { Text } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text>0</Text>
   );
@@ -107,7 +107,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text>0</Text>
   );
@@ -126,7 +126,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text, } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -148,7 +148,7 @@ O que resultará na largura da janela dividido por 4, pois a calculadora padrão
 import React from "react";
 import { StyleSheet, View, Dimensions } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -171,7 +171,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -195,7 +195,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -223,7 +223,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -253,7 +253,7 @@ export default Button;
 import React from "react";
 import { StyleSheet, Text, Dimensions } from "react-native";
 
-const Button = () => {
+const Button = (props) => {
   return (
     <Text style={styles.button}>0</Text>
   );
@@ -330,7 +330,7 @@ const App = () => {
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <Button label="AC" />
+
       </View>
     </View>
     
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
 export default App;
 ```
 
-- E dentro dessa _View_ vamos referênciar o componente _Button_ para cada botão da calculadora:
+- E dentro dessa _View_ vamos referênciar o componente _Button_ para cada botão da calculadora, enviando via props o _label_ de cada um:
 
 ``` JSX
 import React from 'react';
@@ -431,3 +431,177 @@ export default App;
 ```
 
 ### Componente Display
+
+- Dentro da pasta _components_ vamos criar o componente funcional _Display_:
+
+``` JSX 
+import React from "react";
+import { StyleSheet, View } from "react-native";
+
+const Display = (props) => {
+  return (
+    <View></View>
+  );
+}
+
+const styles = StyleSheet.create({
+  
+})
+
+export default Display;
+```
+
+- Em seguida, vamos criar os objetos de estilo que iremos usar nesse componente _Display_.
+Vamos aplicar na _View_ o objeto de estilo _display_ e também vamos inserir um componente _Text_ que vamos aplicar o objeto de estilo _displayValue_ que vai equivaler ao valor exibido no display:
+
+``` JSX
+import React from "react";
+import { StyleSheet, View, Text } from "react-native";
+
+const Display = (props) => {
+  return (
+    <View style={styles.display}>
+      <Text style={styles.displayValue}>
+        
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  display: {
+    backgroundColor: "rgba(0,0,0,0.6)",
+
+    flex: 1, // permite o componente crescer 
+    justifyContent: "center", // para trabalharmos com alinhamento em relação ao Eixo Principal/main axis(que nesse caso é a coluna/column)
+    alignItems: "flex-end", // para trabalharmos no alinhamento dos elementos/flex items no eixo cruzado/cross axis(que nesse caso é no eixo da linha/row) 
+
+    padding: 20 // espaçamento entre a borda e conteúdo
+  },
+
+  displayValue: {
+    fontSize: 60, // altera o tamanho da font
+    color: "#fff", // altera a cor da fonte
+  }
+})
+
+export default Display;
+```
+
+- Além disso, no componente _Text_ vamos definir o número de linhas que ele vai ter, que nesse caso vai ser 1. 
+E o valor a ser exibido nesse _Text_ vamos receber via props do componente pai: 
+
+``` JSX
+import React from "react";
+import { StyleSheet, View, Text } from "react-native";
+
+const Display = (props) => {
+  return (
+    <View style={styles.display}>
+      <Text style={styles.displayValue} 
+        numberOfLines={1}>{props.value}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default Display;
+```
+
+- Agora, vamos importar esse componente _Display_ dentro do componente App:
+
+``` JSX
+import React from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+  return (
+    <View style={styles.container}>
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Em seguida, vamos criar um estado para o componente App, onde o _useState_ irá receber um objeto e dentro dele teremos inicialmente um único atributo chamado _displayValue_ que seu valor inicial será "0" e iremos apontar para a propriedade _value_ do componente _Display_ o estado desse objeto:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+  
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Agora, em cima da _View_ onde temos os buttons iremos referênciar o componente _Display_ passando via props o _value_ apontando para o estado do _displayValue_:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+  
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
