@@ -1047,4 +1047,640 @@ export default App;
 // arrow funcion antes de passarmos a função para evitar o erro de "too many re-renders", pois se passarmos diretamente a função toda vez que o componente for renderizado ela será chamado, a arrow function evita isso, chamando a função apenas quando houver o evento que acione ela 
 ```
 
-### Entendendo a Lógica da Calculadora
+### Lógica da Calculadora #01
+
+- Iremos, criar o estado inicial para depois manipularmos. Fora do componente, vamos definir uma constante _initialState_ que vai receber as seguintes propriedades:
+_displayValue_ vai ser o valor a ser exibido no display da calculadora; 
+_clearDisplay_ propriedade que vai informar se precisa ou não limpar o display, inicialmente vai começar com o valor booleano _false_; 
+_operation_ variável que vai armazenar a operação corrente, vai iniciar como _null_; 
+_values_ array com dois valores, pois no momento que colocamos o valor e em seguida clicamos na operação ele armazena esse valor na primeira posição do array, na próxima vez ele vai limpar o display e vai armazenar o próximo valor na segunda posição do array; 
+_current_ propriedade para verificar se estamos manipulando value de indice 0 do array ou o value de indice 1, vai iniciar com o valor _0_:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+
+  const addDigit = (n) => {
+    setState({ displayValue: n })
+  }  
+
+  const clearMemory = () => {
+    setState({ displayValue: "0" })
+  }
+
+  const setOperation = (operation) => {
+
+  }
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Criamos essa constante _initialState_, pois a função _clearMemory_ vai chamar ela e voltar o display ao estado inicial, além de que o _state_ vai fazer um clone desse objeto. Por isso, foi criada de forma separada para não ser alterada diretamente. 
+Então, dentro do componente vamos mudar objeto _state_ para o seu valor inicial receber tudo que a variável _inicialState_ possui dentro dela(operador spred cria um clone desse objeto):
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Além de que, caso a função _clearMemory_ seja invocada vai chamar a função _setState_ e atribuir os valores de _initialState_, voltando o estado para o inicio:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  // [...] 
+
+  const clearMemory = () => {
+    setState({ ...initialState });
+  }
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Agora, vamos implementar condicionais na função _addDigit_. 
+Se a calculadora receber um digito ponto "."(n === ".") e o valor que está no display(state.displayValue) já contém um ponto(includes(".")), significa que **não podemos adicionar um segundo ponto nesse número**, essa tentativa vai ser ignorada e o código vai seguir(return):
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- O próximo passo dentro da função _addDigit_ é criar uma variável chamada _clearDisplay_. 
+A constante _clearDisplay_ vai ter dois cenários. O primeiro cenário vai ser quando o display conter apenas o digito 0, pois a medida que adicionarmos o digito diferente de 0 vai limpar o display e ir concatenando os digitos. A segunda situação é quando a variável _clearDisplay_ do objeto _state_(que clonou o objeto initialState) for verdadeira/_true_:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay // a constante vai receber um valor booleano, se o valor no display for igual a 0(true); OU o valor da variável clearDisplay do objeto state for true... clearDisplay vai ser true, caso nenhuma das condições seja true, vai receber false
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- O próximo passo, é criar uma constante chamada _currentValue_ e ela vai depender da variável _clearDisplay_(vai depender se o display vai ser limpo ou não). 
+Se o display for ser limpo, ou seja, **_clearDisplay_ for true** então(?) o valor **_currentValue_ vai ser uma string vazia**. Se o display não for ser limpo (senão :), ou seja, **_clearDisplay_ for false**, a constante **_currentValue_ vai receber o valor atual que está no display(state.displayValue)**. Vamos usar o operador ternário:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    
+    const currentValue = clearDisplay ? '' : state.displayValue;
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- A próxima constante a ser criada vai ser o novo valor que vamos colocar no display, ela vai ser chamada de _displayValue_ que **vai receber o _currentValue_ + o digito _n_** que for clicado:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    
+    const currentValue = clearDisplay ? '' : state.displayValue;
+
+    const displayValue = currentValue + n; // como são duas strings ele vai apenas concatenar e não somar
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Agora, o próximo passo é mudarmos o estado da aplicação, por hora quando clicamos nos digitos não ocorre nada no valor do display, portanto vamos chamar a função _setState_ e passar como valores para _displayValue_ a constante com o mesmo nome _displayValue_ e o _clearDisplay_ recebendo _false_(pois uma vez que digitamos o valor e já limpamos o display com a variável clearDisplay igual a true, alteramos clearDisplay para false):
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    
+    const currentValue = clearDisplay ? '' : state.displayValue;
+
+    const displayValue = currentValue + n;
+
+    setState({ ...state, displayValue, clearDisplay: false }); // Aqui receberia CHAVE: VALOR => setState({ displayValue: newDisplayValue, ...}); Mas colocamos a chave com o mesmo valor que está dentro do state que quando passarmos para o setState usamos apenas o nome do atributo que já reflete no nome da chave que é o mesmo;
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- O próximo passo é inserirmos uma condicional para que sempre que for digitado um valor diferente de ponto, ou seja, um número. Queremos armazenar esse número digitado no array _values_ do objeto _state_, só que o valor que contém no _displayValue_ é uma string, e iremos armazenar no array como float.
+Então, dentro da condicional if se for digitado qualquer valor diferente de ponto, vai ser armazenado na contante _newValue_ a conversão do valor _displayValue_(contém o valor do valor corrente do display + valor n que foi recebido na função) em float:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    const currentValue = clearDisplay ? '' : state.displayValue;
+    const displayValue = currentValue + n;
+    
+    setState({ ...state, displayValue, clearDisplay: false });         
+
+    if(n !== ".") {
+      const newValue = parseFloat(displayValue);
+    }
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Desse modo, podemos criar uma nova constante chamada _values_ que vai receber o clone do array values do objeto state. Para ao invés de atualizar diretamente o array que está no estado, gerar um novo array e atualizar o estado com o novo array:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    const currentValue = clearDisplay ? '' : state.displayValue;
+    const displayValue = currentValue + n;
+
+    setState({ ...state, displayValue, clearDisplay: false });         
+
+    if(n !== ".") {
+      const newValue = parseFloat(displayValue);
+      const values = [...state.values];
+    }
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Assim, podemos fazer com que o array _values_ receba os valores de acordo com o indice(_current_):
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    const currentValue = clearDisplay ? '' : state.displayValue;
+    const displayValue = currentValue + n;
+
+    setState({ ...state, displayValue, clearDisplay: false }); 
+
+    if(n !== ".") {
+      const newValue = parseFloat(displayValue);
+      const values = [...state.values];
+      values[state.current] = newValue;
+    }
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Por fim, uma vez que mudamos os valores do array, vamos adicionar esse array no estado do objeto:
+
+``` JSX
+import React, { useState } from "react";
+// [...]
+
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
+
+const App = () => { 
+
+  const [state, setState] = useState({ ...initialState })
+
+  const addDigit = (n) => {
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0" 
+      || state.clearDisplay 
+    const currentValue = clearDisplay ? '' : state.displayValue;
+    const displayValue = currentValue + n;
+    setState({ ...state, displayValue, clearDisplay: false }); 
+
+    if(n !== ".") {
+      const newValue = parseFloat(displayValue);
+      const values = [...state.values];
+      values[state.current] = newValue;
+
+      setState({ ...state, displayValue, values }); // mesma coisa que ({ values: values }) já que a constante que criamos tem o mesmo nome do atributo que está dentro do objeto state
+    }
+  }  
+
+  // [...]
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```

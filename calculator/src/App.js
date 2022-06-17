@@ -4,18 +4,41 @@ import { StyleSheet, View } from "react-native";
 import Button from "./components/Button";
 import Display from "./components/Display";
 
-const App = () => { 
+const initialState = {
+  displayValue: "0",
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  current: 0
+}
 
-  const [state, setState] = useState({
-    displayValue: "0",
-  })
+const App = () => {
+
+  const [state, setState] = useState({ ...initialState });
 
   const addDigit = (n) => {
-    setState({ displayValue: n })
-  }  
+    if (n === "." && state.displayValue.includes(".")) {
+      return
+    }
+
+    const clearDisplay = state.displayValue === "0"
+      || state.clearDisplay
+    const currentValue = clearDisplay ? "" : state.displayValue;
+    const displayValue = currentValue + n;
+
+    setState({ ...state, displayValue, clearDisplay: false });
+
+    if(n !== ".") {
+      const newValue = parseFloat(displayValue);
+      const values = [...state.values];
+      values[state.current] = newValue;
+
+      setState({ ...state, displayValue, values });
+    }
+  }
 
   const clearMemory = () => {
-    setState({ displayValue: "0" })
+    setState({ ...initialState });
   }
 
   const setOperation = (operation) => {
@@ -29,7 +52,7 @@ const App = () => {
       <View style={styles.buttons}>
         <Button label="AC" triple onClick={clearMemory} />
         <Button label="/" operation onClick={() => setOperation("/")} />
-        <Button label="7" onClick={() => addDigit(7)} /> 
+        <Button label="7" onClick={() => addDigit(7)} />
         <Button label="8" onClick={() => addDigit(8)} />
         <Button label="9" onClick={() => addDigit(9)} />
         <Button label="*" operation onClick={() => setOperation("*")} />
