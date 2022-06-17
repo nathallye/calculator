@@ -605,3 +605,446 @@ const styles = StyleSheet.create({
 
 export default App;
 ```
+
+## Criando o componente Botão/Button #02
+
+- Agora, vamos trabalhar outros estilos importantes para ter a calculadora seguindo o modelo do modelo(calculadora mac). Por exemplo, os botão de operações tem um tom de laranja, diferindo das demais teclas e o botão AC vai ocupar espaços de 3 colunas e o botão 0 vai ocupar 2 espaços de colunas.
+Para isso, primeiramente vamos criar um novo objeto de estilo chamado botão de operação/_operationButton_ o qual vai receber um outro tom de _backgroundColor_(larajinha) e um tom de branco no _color_ para mudar a cor da fonte também:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#f0f0f0",
+
+    fontSize: 40,
+
+    textAlign: "center",
+
+    height: Dimensions.get("window").width / 4,
+    width: Dimensions.get("window").width / 4,
+    padding: 20,
+
+    borderWidth: 1,
+    borderColor: "#888",
+  },
+  operationButton: {
+    backgroundColor: "#fa8231",
+    color: "#fff",
+  }
+})
+
+export default Button;
+```
+
+- Em seguida vamos criar o objeto de estilo chamado botão duplo/_buttonDouble_ e nele iremos aplicar a propriedade largura/_width_ igual o tamanho da largura da tela divido por 4 e multiplicado por 2, para ocupar dois espaços de colunas:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#f0f0f0",
+
+    fontSize: 40,
+
+    textAlign: "center",
+
+    height: Dimensions.get("window").width / 4,
+    width: Dimensions.get("window").width / 4,
+    padding: 20,
+
+    borderWidth: 1,
+    borderColor: "#888",
+  },
+  operationButton: {
+    backgroundColor: "#fa8231",
+    color: "#fff",
+  },
+  buttonDouble: {
+    width: (Dimensions.get("window").width / 4) * 2,
+  },
+})
+
+export default Button;
+```
+
+- Vamos seguir a mesma lógica anterior para criar o objeto de estilo _buttonTriple_, o que mudará é que no final iremos multiplicar o resultado por 3:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#f0f0f0",
+
+    fontSize: 40,
+
+    textAlign: "center",
+
+    height: Dimensions.get("window").width / 4,
+    width: Dimensions.get("window").width / 4,
+    padding: 20,
+
+    borderWidth: 1,
+    borderColor: "#888",
+  },
+  operationButton: {
+    backgroundColor: "#fa8231",
+    color: "#fff",
+  },
+  buttonDouble: {
+    width: (Dimensions.get("window").width / 4) * 2,
+  },
+  buttonTriple: {
+    width: (Dimensions.get("window").width / 4) * 3,
+  },  
+})
+
+export default Button;
+```
+
+- Agora, dentro do componente _Button_ vamos criar uma constante chamada _stylesButton_ que irá receber o estilo inicial/padrão _button_ e apartir dele iremos aplicar os estilos de forma condicional caso as propriedades _double_ ou _tiple_ for passada:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  const stylesButton = [styles.button];
+
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default Button;
+```
+
+- Então, se _double_ for passado via props, então a constante _stylesButton_ que é um array, irá receber também o _styles.buttonDouble_:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  const stylesButton = [styles.button];
+  if(props.double) stylesButton.push(styles.buttonDouble);
+
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...] 
+})
+
+export default Button;
+```
+
+- Seguindo a lógica aplicada anteriormente, iremos fazer a mesma válidação para a própriedade _triple_:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  const stylesButton = [styles.button];
+  if(props.double) stylesButton.push(styles.buttonDouble);
+  if(props.triple) stylesButton.push(styles.buttonTriple);
+
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...] 
+})
+
+export default Button;
+```
+
+- E para finalizar essa parte de lógica na aplicação de estilos, seguindo a mesma ideia anterior vamos fazer a validação para verificar se a propriedade _operation_ está presente no botão:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  const stylesButton = [styles.button];
+  if(props.double) stylesButton.push(styles.buttonDouble);
+  if(props.triple) stylesButton.push(styles.buttonTriple);
+  if(props.operation) stylesButton.push(styles.operationButton);
+
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={styles.button}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default Button;
+```
+
+- E vamos substituir a chamada direta para o objeto de estilo _styles.button_ no componente _Text_ para a constante _stylesButton_ para que a aplicação de estilo nos botões seja feita de forma condicional:
+
+``` JSX
+import React from "react";
+import { StyleSheet, Text, Dimensions, TouchableHighlight } from "react-native";
+
+const Button = (props) => {
+  const stylesButton = [styles.button];
+  if(props.double) stylesButton.push(styles.buttonDouble);
+  if(props.triple) stylesButton.push(styles.buttonTriple);
+  if(props.operation) stylesButton.push(styles.operationButton);
+
+  return (
+    <TouchableHighlight onPress={props.onClick}>
+      <Text style={stylesButton}>{props.label}</Text>
+    </TouchableHighlight>
+  );
+}
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default Button;
+```
+
+- Sabemos que precisamos passar um evento/parâmetro chamado _onClick_ para cada button e esse parâmetro vai receber uma função de acordo com o tipo do botão, por exemplo se for _AC_ vai receber uma função de limpar o display, se for uma operação vai receber uma função que irá efeturar a operação e assim sucessivamente.
+
+Então, vamos voltar no componente _App_ vamos criar três funções... a primeira função vai se chamar _addDigit_ que vai receber o dígito _n_ e inicialmente vai chamar a função _setState_ e passar para ela como valor do _displayValue_ o digito _n_:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+
+  const addDigit = (n) => {
+    setState({ displayValue: n })
+  }  
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- A segunda função vai se chamar _clearMemory_ que irá limpar o display, ou seja, vamos chamar a função _setState_ e zerar o valor de _displaValue_:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+
+  const addDigit = (n) => {
+    setState({ displayValue: n })
+  }  
+
+  const clearMemory = () => {
+    setState({ displayValue: "0" })
+  }
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Por fim, a última função vai se chamar _setOperation_ e ela vai receber como parâmetro a operação/_operation_ e por enquanto ela vai ficar vazia:
+
+``` JSX
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+
+  const addDigit = (n) => {
+    setState({ displayValue: n })
+  }  
+
+  const clearMemory = () => {
+    setState({ displayValue: "0" })
+  }
+
+  const setOperation = (operation) => {
+    
+  }
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" />
+        // [...]
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+```
+
+- Agora, vamos passar para cada componente _Button_ os seus estilos(caso seja _double_ ou _triple_ ou _operation_) e a função/evento com seu respectivo parâmetro para a propriedade _onClick_:
+
+``` JSX 
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import Button from "./components/Button";
+import Display from "./components/Display";
+
+const App = () => { 
+
+  const [state, setState] = useState({
+    displayValue: "0",
+  })
+
+  const addDigit = (n) => {
+    setState({ displayValue: n })
+  }  
+
+  const clearMemory = () => {
+    setState({ displayValue: "0" })
+  }
+
+  const setOperation = (operation) => {
+
+  }
+
+  return (
+    <View style={styles.container}>
+      <Display value={state.displayValue} />
+
+      <View style={styles.buttons}>
+        <Button label="AC" triple onClick={clearMemory} />
+        <Button label="/" operation onClick={() => setOperation("/")} /> 
+        <Button label="7" onClick={() => addDigit(7)} /> 
+        <Button label="8" onClick={() => addDigit(8)} />
+        <Button label="9" onClick={() => addDigit(9)} />
+        <Button label="*" operation onClick={() => setOperation("*")} />
+        <Button label="4" onClick={() => addDigit(4)} />
+        <Button label="5" onClick={() => addDigit(5)} />
+        <Button label="6" onClick={() => addDigit(6)} />
+        <Button label="-" operation onClick={() => setOperation("-")} />
+        <Button label="1" onClick={() => addDigit(1)} />
+        <Button label="2" onClick={() => addDigit(2)} />
+        <Button label="3" onClick={() => addDigit(3)} />
+        <Button label="+" operation onClick={() => setOperation("+")} />
+        <Button label="0" double onClick={() => addDigit(0)} />
+        <Button label="." onClick={() => addDigit(".")} />
+        <Button label="=" operation onClick={() => setOperation("=")} />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // [...]
+})
+
+export default App;
+
+// arrow funcion antes de passarmos a função para evitar o erro de "too many re-renders", pois se passarmos diretamente a função toda vez que o componente for renderizado ela será chamado, a arrow function evita isso, chamando a função apenas quando houver o evento que acione ela 
+```
+
+### Entendendo a Lógica da Calculadora
