@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
 import { StyleSheet, View } from "react-native";
 
 import Button from "./components/Button";
@@ -12,65 +12,98 @@ const initialState = {
   current: 0
 }
 
-const App = () => {
+export default class App extends Component {
 
-  const [state, setState] = useState({ ...initialState });
+  state = { ...initialState };
 
-  const addDigit = (n) => {
-    if (n === "." && state.displayValue.includes(".")) {
+  constructor(props) {
+    super(props)
+
+    this.clearMemory = this.clearMemory.bind(this);
+    this.setOperation = this.setOperation.bind(this);
+    this.addDigit = this.addDigit.bind(this);
+  }
+
+  addDigit (n) {
+    const clearDisplay = this.state.displayValue === "0"
+      || this.state.clearDisplay
+    const currentValue = clearDisplay ? "" : this.state.displayValue;
+    const displayValue = currentValue + n;
+
+    if (n === "." && !clearDisplay
+      && this.state.displayValue.includes(".")) {
       return
     }
 
-    const clearDisplay = state.displayValue === "0"
-      || state.clearDisplay
-    const currentValue = clearDisplay ? "" : state.displayValue;
-    const displayValue = currentValue + n;
-
-    setState({ ...state, displayValue, clearDisplay: false });
+    this.setState({ displayValue, clearDisplay: false });
 
     if(n !== ".") {
       const newValue = parseFloat(displayValue);
-      const values = [...state.values];
-      values[state.current] = newValue;
+      const values = [ ...this.state.values ];
+      values[this.state.current] = newValue;
 
-      setState({ ...state, displayValue, values });
+      this.setState({ values });
     }
   }
 
-  const clearMemory = () => {
-    setState({ ...initialState });
+  clearMemory() {
+    this.setState({ ...initialState });
   }
 
-  const setOperation = (operation) => {
+  setOperation = (operation) => {
+    if (this.state.current === 0) {
+      this.setState({ operation, current: 1, clearDisplay: true })
+    } else {
+      const equals = operation === "=";
+      currentOperation = this.state.operation;
 
+      const values = [ ...this.state.values ]
+      try {
+        values[0] = eval(`${values[0]} ${currentOperation} ${values[1]}`);
+      } catch(e) {
+        values[0] = this.state.values[0];
+      }
+
+      values[1] = 0;
+
+      this.setState({
+        displayValue: `${values[0]}`,
+        operation: equals ? null : operation,
+        current: equals ? 0 : 1,
+        clearDisplay: true,
+        values
+      });
+    }
   }
 
-  return (
-    <View style={styles.container}>
-      <Display value={state.displayValue} />
+  render () {
+    return (
+      <View style={styles.container}>
+        <Display value={this.state.displayValue} />
 
-      <View style={styles.buttons}>
-        <Button label="AC" triple onClick={clearMemory} />
-        <Button label="/" operation onClick={() => setOperation("/")} />
-        <Button label="7" onClick={() => addDigit(7)} />
-        <Button label="8" onClick={() => addDigit(8)} />
-        <Button label="9" onClick={() => addDigit(9)} />
-        <Button label="*" operation onClick={() => setOperation("*")} />
-        <Button label="4" onClick={() => addDigit(4)} />
-        <Button label="5" onClick={() => addDigit(5)} />
-        <Button label="6" onClick={() => addDigit(6)} />
-        <Button label="-" operation onClick={() => setOperation("-")} />
-        <Button label="1" onClick={() => addDigit(1)} />
-        <Button label="2" onClick={() => addDigit(2)} />
-        <Button label="3" onClick={() => addDigit(3)} />
-        <Button label="+" operation onClick={() => setOperation("+")} />
-        <Button label="0" double onClick={() => addDigit(0)} />
-        <Button label="." onClick={() => addDigit(".")} />
-        <Button label="=" operation onClick={() => setOperation("=")} />
+        <View style={styles.buttons}>
+          <Button label="AC" triple onClick={this.clearMemory} />
+          <Button label="/" operation onClick={() => this.setOperation("/")} />
+          <Button label="7" onClick={() => this.addDigit(7)} />
+          <Button label="8" onClick={() => this.addDigit(8)} />
+          <Button label="9" onClick={() => this.addDigit(9)} />
+          <Button label="*" operation onClick={() => this.setOperation("*")} />
+          <Button label="4" onClick={() => this.addDigit(4)} />
+          <Button label="5" onClick={() => this.addDigit(5)} />
+          <Button label="6" onClick={() => this.addDigit(6)} />
+          <Button label="-" operation onClick={() => this.setOperation("-")} />
+          <Button label="1" onClick={() => this.addDigit(1)} />
+          <Button label="2" onClick={() => this.addDigit(2)} />
+          <Button label="3" onClick={() => this.addDigit(3)} />
+          <Button label="+" operation onClick={() => this.setOperation("+")} />
+          <Button label="0" double onClick={() => this.addDigit(0)} />
+          <Button label="." onClick={() => this.addDigit(".")} />
+          <Button label="=" operation onClick={() => this.setOperation("=")} />
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -80,6 +113,4 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   }
-})
-
-export default App;
+});
