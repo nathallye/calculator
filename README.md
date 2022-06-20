@@ -1,5 +1,7 @@
 # Projeto Calculadora(Calculator)
 
+Construindo um aplicativo de calculadora utilizando React Native
+
 ![image](https://user-images.githubusercontent.com/86172286/174512763-41d33bda-6f7e-43d2-999e-746e889a8a98.jpg)
 
 ## Iniciando um projeto com a CLI(Command Line Interface) do React Native
